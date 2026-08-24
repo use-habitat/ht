@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 2,
+  "daemonPort": 4322,
+  "activeWorkspaceId": null,
+  "workspaces": [],
+  "projects": [],
+  "backfillWindow": "30d",
+  "upload": {
+    "projectOrigins": {
+      "include": [
+        "habitat",
+        "~/code/client-work/**"
+      ],
+      "exclude": [
+        "~/code/client-work/private/**",
+        "*-private"
+      ]
+    }
+  }
+}

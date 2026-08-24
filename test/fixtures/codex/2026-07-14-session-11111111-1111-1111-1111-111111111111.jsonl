@@ -1,0 +1,9 @@
+{"timestamp":"2026-07-14T10:00:00.000Z","type":"session_meta","payload":{"id":"11111111-1111-1111-1111-111111111111","cwd":"/work/habitat","timestamp":"2026-07-14T10:00:00.000Z"}}
+{"timestamp":"2026-07-14T10:00:01.000Z","type":"event_msg","payload":{"type":"user_message","message":"Design a local session database"}}
+{"timestamp":"2026-07-14T10:00:01.500Z","type":"event_msg","payload":{"type":"thread_name_updated","thread_id":"11111111-1111-1111-1111-111111111111","thread_name":"Build local session storage"}}
+{"timestamp":"2026-07-14T10:00:02.000Z","type":"turn_context","payload":{"model":"gpt-5"}}
+{"timestamp":"2026-07-14T10:00:03.000Z","type":"response_item","payload":{"type":"function_call","call_id":"call-1","name":"rg","arguments":"{\"pattern\":\"session\"}"}}
+{"timestamp":"2026-07-14T10:00:04.000Z","type":"response_item","payload":{"type":"message","id":"assistant-1","role":"assistant","content":[{"type":"output_text","text":"I found the session adapter."}]}}
+{"timestamp":"2026-07-14T10:00:05.000Z","type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":100,"output_tokens":20,"cached_input_tokens":40,"reasoning_output_tokens":10}}}}
+{"timestamp":"2026-07-14T10:00:06.000Z","type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":160,"output_tokens":35,"cached_input_tokens":70,"reasoning_output_tokens":15}}}}
+not-valid-json
