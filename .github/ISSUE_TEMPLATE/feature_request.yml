@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a focused improvement to the public CLI or local collector.
+title: "feature: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: Describe the workflow or limitation before proposing a solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This belongs in the public CLI, local collector, provider adapters, local storage, or public ingestion contract.
+          required: true
