@@ -55,6 +55,8 @@ git diff --check
 Provider format changes require a sanitized fixture and an idempotence test.
 Changes to the ingestion wire format must follow the
 [protocol compatibility policy](protocol/README.md) and update its fixtures.
+Maintainers run the private consumer check; contributors are not expected to
+have access to Habitat Cloud source code.
 
 ## Pull requests and licensing
 

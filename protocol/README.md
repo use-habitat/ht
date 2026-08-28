@@ -25,5 +25,9 @@ Changes to this directory require:
 
 1. updated valid and invalid fixtures;
 2. a passing public runtime validation test;
-3. a passing private API compatibility test; and
+3. a passing maintainer-run private API compatibility test; and
 4. a changelog entry describing producer and consumer impact.
+
+External contributors do not need access to Habitat's private repository.
+Maintainers are responsible for running the consumer compatibility check before
+approving a protocol change.
