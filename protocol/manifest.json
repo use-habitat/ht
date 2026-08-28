@@ -1,0 +1,35 @@
+{
+  "contract": "habitat-ingest",
+  "contractVersion": "2.0.0",
+  "schemaVersion": 2,
+  "schema": "ingest-v2.schema.json",
+  "fixtures": [
+    {
+      "file": "fixtures/v2-valid-baseline.json",
+      "valid": true
+    },
+    {
+      "file": "fixtures/v2-valid-delta.json",
+      "valid": true
+    },
+    {
+      "file": "fixtures/v2-valid-final.json",
+      "valid": true
+    },
+    {
+      "file": "fixtures/v2-invalid-baseline-cursor.json",
+      "valid": false,
+      "expectedIssue": "baseline must start at cursor zero"
+    },
+    {
+      "file": "fixtures/v2-invalid-final-status.json",
+      "valid": false,
+      "expectedIssue": "final batch must complete or archive"
+    },
+    {
+      "file": "fixtures/v2-invalid-source-size.json",
+      "valid": false,
+      "expectedIssue": "sourceSize must be greater than or equal to cursor.to"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "batchId": "2222222222222222222222222222222222222222222222222222222222222222",
+  "mode": "delta",
+  "cursor": {
+    "from": 128,
+    "to": 256
+  },
+  "source": {
+    "id": "source-example-root",
+    "deviceId": "device-example",
+    "provider": "codex",
+    "nativeSessionId": "native-example-root",
+    "nativeParentSessionId": null,
+    "classification": "fixture",
+    "pathHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "epoch": 1,
+    "sourceSize": 256,
+    "capturedAt": "2026-08-01T12:01:00.000Z"
+  },
+  "session": {
+    "id": "session-example-root",
+    "kind": "root",
+    "title": "Synthetic protocol fixture",
+    "project": "/example/habitat-fixture",
+    "model": "example-model",
+    "status": "active",
+    "startedAt": "2026-08-01T11:59:00.000Z",
+    "updatedAt": "2026-08-01T12:01:00.000Z",
+    "attributes": {
+      "fixture": true
+    }
+  },
+  "events": [
+    {
+      "id": "event-example-2",
+      "sequence": 1,
+      "kind": "assistant_message",
+      "actor": "assistant",
+      "occurredAt": "2026-08-01T12:01:00.000Z",
+      "content": [
+        {
+          "type": "text",
+          "text": "Synthetic response."
+        }
+      ],
+      "text": "Synthetic response.",
+      "toolName": null,
+      "attributes": {}
+    }
+  ],
+  "redaction": {
+    "version": "1",
+    "replacements": 0
+  }
+}

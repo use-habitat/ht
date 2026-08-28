@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "batchId": "3333333333333333333333333333333333333333333333333333333333333333",
+  "mode": "final",
+  "cursor": {
+    "from": 256,
+    "to": 256
+  },
+  "source": {
+    "id": "source-example-root",
+    "deviceId": "device-example",
+    "provider": "codex",
+    "nativeSessionId": "native-example-root",
+    "nativeParentSessionId": null,
+    "classification": "fixture",
+    "pathHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "epoch": 1,
+    "sourceSize": 256,
+    "capturedAt": "2026-08-01T12:02:00.000Z"
+  },
+  "session": {
+    "id": "session-example-root",
+    "kind": "root",
+    "title": "Synthetic protocol fixture",
+    "project": "/example/habitat-fixture",
+    "model": "example-model",
+    "status": "completed",
+    "startedAt": "2026-08-01T11:59:00.000Z",
+    "updatedAt": "2026-08-01T12:02:00.000Z",
+    "attributes": {
+      "fixture": true
+    }
+  },
+  "events": [],
+  "redaction": {
+    "version": "1",
+    "replacements": 0
+  }
+}
