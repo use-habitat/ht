@@ -1,6 +1,6 @@
 {
   "name": "@use-habitat/ht",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "Agent Session Observability",
   "license": "MIT",
   "type": "module",
@@ -13,6 +13,7 @@
   "bugs": "https://github.com/use-habitat/ht/issues",
   "files": [
     "src",
+    "protocol",
     "install.sh",
     "ht.config.example.json",
     "README.md",
@@ -24,9 +25,11 @@
   "scripts": {
     "apps:cli": "bun src/entry.ts",
     "dev": "bun src/entry.ts",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "bun node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
     "test": "bun test",
-    "check": "bun run typecheck && bun test",
+    "protocol:generate": "bun scripts/generate-protocol-schema.ts",
+    "protocol:check": "bun scripts/generate-protocol-schema.ts --check",
+    "check": "bun run typecheck && bun run protocol:check && bun test",
     "build": "bun build src/entry.ts --compile --outfile dist/ht"
   },
   "dependencies": {

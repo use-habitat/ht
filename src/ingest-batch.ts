@@ -1,32 +1,92 @@
+import { z } from "zod"
+
 import { hash } from "./domain.ts"
-import type { CanonicalEvent, SessionSnapshot } from "./snapshot.ts"
+import {
+  canonicalEventSchema,
+  redactionSchema,
+  sessionSchema,
+  type CanonicalEvent,
+  type SessionSnapshot
+} from "./snapshot.ts"
 
-export type IngestMode = "baseline" | "delta" | "final"
+const isoDate = z.string().datetime({ offset: true })
+const identifier = z.string().min(1).max(256)
+const sha256 = z.string().regex(/^[a-f0-9]{64}$/)
 
-export interface IngestBatch {
-  readonly schemaVersion: 2
-  readonly batchId: string
-  readonly mode: IngestMode
-  readonly cursor: {
-    readonly from: number
-    readonly to: number
+export const ingestModeSchema = z.enum(["baseline", "delta", "final"])
+
+/**
+ * The structural portion of Habitat ingestion protocol v2. This schema is
+ * exported separately so the checked-in JSON Schema can be generated without
+ * losing the cross-field invariants enforced by `ingestBatchSchema`.
+ */
+export const ingestBatchStructuralSchema = z.object({
+  schemaVersion: z.literal(2),
+  batchId: sha256,
+  mode: ingestModeSchema,
+  cursor: z.object({
+    from: z.number().int().nonnegative(),
+    to: z.number().int().nonnegative()
+  }),
+  source: z.object({
+    id: identifier,
+    deviceId: identifier,
+    provider: identifier,
+    nativeSessionId: identifier,
+    nativeParentSessionId: z.string().max(512).nullable().default(null),
+    classification: z.enum(["active", "archived", "fixture"]),
+    pathHash: sha256,
+    epoch: z.number().int().positive(),
+    sourceSize: z.number().int().nonnegative(),
+    capturedAt: isoDate
+  }),
+  session: sessionSchema,
+  events: z.array(canonicalEventSchema).max(100_000).readonly(),
+  redaction: redactionSchema
+})
+
+/**
+ * Canonical runtime validator for every batch produced by HT. The private
+ * Habitat API validates the same invariants against the public fixtures in
+ * `protocol/fixtures`.
+ */
+export const ingestBatchSchema = ingestBatchStructuralSchema.superRefine((batch, context) => {
+  if (batch.cursor.to < batch.cursor.from) {
+    context.addIssue({
+      code: "custom",
+      path: ["cursor", "to"],
+      message: "cursor.to must be greater than or equal to cursor.from."
+    })
   }
-  readonly source: {
-    readonly id: string
-    readonly deviceId: string
-    readonly provider: string
-    readonly nativeSessionId: string
-    readonly nativeParentSessionId: string | null
-    readonly classification: "active" | "archived" | "fixture"
-    readonly pathHash: string
-    readonly epoch: number
-    readonly sourceSize: number
-    readonly capturedAt: string
+  if (batch.mode === "baseline" && batch.cursor.from !== 0) {
+    context.addIssue({
+      code: "custom",
+      path: ["cursor", "from"],
+      message: "A baseline must start at cursor zero."
+    })
   }
-  readonly session: SessionSnapshot["session"]
-  readonly events: readonly CanonicalEvent[]
-  readonly redaction: SessionSnapshot["redaction"]
-}
+  if (batch.source.sourceSize < batch.cursor.to) {
+    context.addIssue({
+      code: "custom",
+      path: ["source", "sourceSize"],
+      message: "sourceSize must be greater than or equal to cursor.to."
+    })
+  }
+  if (
+    batch.mode === "final" &&
+    batch.session.status !== "completed" &&
+    batch.session.status !== "archived"
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["session", "status"],
+      message: "A final batch must complete or archive the session."
+    })
+  }
+})
+
+export type IngestMode = z.infer<typeof ingestModeSchema>
+export type IngestBatch = z.infer<typeof ingestBatchSchema>
 
 // Keep individual requests comfortably below the API limit and keep each
 // server-side transaction bounded for sessions with many events.

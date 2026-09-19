@@ -2326,7 +2326,7 @@ describe("ht collector", () => {
     output.clear()
     expect(await runCli(["version", "--json"], output)).toBe(0)
     expect(JSON.parse(output.readStdout())).toEqual({
-      version: "0.4.7",
+      version: "0.4.8",
       command: "ht"
     })
   })

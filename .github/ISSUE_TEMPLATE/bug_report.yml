@@ -1,0 +1,65 @@
+name: Bug report
+description: Report a reproducible problem with HT.
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include credentials, real transcripts, private paths, or customer data.
+  - type: input
+    id: version
+    attributes:
+      label: HT version
+      description: Run `ht version`.
+      placeholder: v0.4.8
+    validations:
+      required: true
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: Operating system
+      options:
+        - macOS Arm
+        - macOS Intel
+        - Linux Arm
+        - Linux x64
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider
+      options:
+        - Codex
+        - Claude Code
+        - Both
+        - Not provider-specific
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: List the smallest sanitized sequence that reproduces the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Sanitized diagnostics
+      description: Include relevant `ht status --verbose` or `ht doctor` output after removing sensitive values.
+      render: shell
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed credentials, real transcript content, personal data, and private repository paths.
+          required: true

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "batchId": "4444444444444444444444444444444444444444444444444444444444444444",
+  "mode": "baseline",
+  "cursor": {
+    "from": 64,
+    "to": 128
+  },
+  "source": {
+    "id": "source-invalid-baseline",
+    "deviceId": "device-example",
+    "provider": "codex",
+    "nativeSessionId": "native-invalid-baseline",
+    "nativeParentSessionId": null,
+    "classification": "fixture",
+    "pathHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "epoch": 1,
+    "sourceSize": 128,
+    "capturedAt": "2026-08-01T12:00:00.000Z"
+  },
+  "session": {
+    "id": "session-invalid-baseline",
+    "kind": "root",
+    "title": null,
+    "project": null,
+    "model": null,
+    "status": "active",
+    "startedAt": "2026-08-01T12:00:00.000Z",
+    "updatedAt": "2026-08-01T12:00:00.000Z",
+    "attributes": {}
+  },
+  "events": [],
+  "redaction": {
+    "version": "1",
+    "replacements": 0
+  }
+}

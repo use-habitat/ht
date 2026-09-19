@@ -30,6 +30,23 @@ export const canonicalEventSchema = z.object({
   usage: usageSchema.optional()
 })
 
+export const sessionSchema = z.object({
+  id: identifier,
+  kind: z.enum(["root", "agent"]),
+  title: z.string().max(4_000).nullable().default(null),
+  project: z.string().max(1_000).nullable().default(null),
+  model: z.string().max(512).nullable().default(null),
+  status: z.enum(["active", "completed", "archived"]),
+  startedAt: isoDate,
+  updatedAt: isoDate,
+  attributes: jsonObject.default({})
+})
+
+export const redactionSchema = z.object({
+  version: identifier,
+  replacements: z.number().int().nonnegative()
+})
+
 const sessionPayloadSchema = z.object({
   schemaVersion: z.literal(1),
   source: z.object({
@@ -45,22 +62,9 @@ const sessionPayloadSchema = z.object({
     sourceSize: z.number().int().nonnegative(),
     capturedAt: isoDate
   }),
-  session: z.object({
-    id: identifier,
-    kind: z.enum(["root", "agent"]),
-    title: z.string().max(4_000).nullable().default(null),
-    project: z.string().max(1_000).nullable().default(null),
-    model: z.string().max(512).nullable().default(null),
-    status: z.enum(["active", "completed", "archived"]),
-    startedAt: isoDate,
-    updatedAt: isoDate,
-    attributes: jsonObject.default({})
-  }),
+  session: sessionSchema,
   events: z.array(canonicalEventSchema).max(100_000),
-  redaction: z.object({
-    version: identifier,
-    replacements: z.number().int().nonnegative()
-  })
+  redaction: redactionSchema
 })
 
 export const sessionSnapshotSchema = sessionPayloadSchema.extend({ snapshotId: sha256 })

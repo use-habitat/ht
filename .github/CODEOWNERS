@@ -1,0 +1,6 @@
+* @wusterbuilds
+
+/.github/ @wusterbuilds
+/install.sh @wusterbuilds
+/protocol/ @wusterbuilds
+/src/exporters/ @wusterbuilds

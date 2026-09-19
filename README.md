@@ -1,84 +1,150 @@
-# Habitat CLI (`ht`)
+# HT — local observability for coding agents
 
-`ht` installs Habitat's Claude Code and Codex ingestion pipeline. It discovers local
-projects, backfills selected history, and keeps future sessions synchronized with
-[Habitat](https://app.use-habitat.com/).
+[![CI](https://github.com/use-habitat/ht/actions/workflows/ci.yml/badge.svg)](https://github.com/use-habitat/ht/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/use-habitat/ht/actions/workflows/codeql.yml/badge.svg)](https://github.com/use-habitat/ht/actions/workflows/codeql.yml)
+[![Trivy](https://github.com/use-habitat/ht/actions/workflows/security.yml/badge.svg)](https://github.com/use-habitat/ht/actions/workflows/security.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/use-habitat/ht/badge)](https://scorecard.dev/viewer/?uri=github.com/use-habitat/ht)
+[![Latest release](https://img.shields.io/github/v/release/use-habitat/ht)](https://github.com/use-habitat/ht/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Install and set up
+HT captures Codex and Claude Code sessions into a private local SQLite ledger
+you can inspect and search. Connect Habitat Cloud only when you want shared team
+history and hosted intelligence.
 
-Install the latest checksum-verified release:
+- **Local-first:** capture, inspect, and search without an account or network.
+- **Read-only providers:** HT never modifies Codex or Claude Code transcripts.
+- **Durable delivery:** optional uploads use deterministic batches, cursors,
+  retries, and per-workspace checkpoints.
+- **Auditable:** source, fixtures, ingestion contract, installer, and release
+  workflows are public under MIT.
+
+> HT is under active development. Expect CLI and protocol changes before 1.0,
+> and review the [privacy model](docs/privacy.md) before capturing sensitive
+> projects or enabling upload.
+
+## Quick start: stay local
+
+Install the latest checksum-verified macOS or Linux release:
 
 ```sh
 curl -fsSL https://app.use-habitat.com/install.sh | sh
-ht setup
+ht install
+ht sync
+ht sessions list
 ```
 
-When no writable directory is already on `PATH`, the installer adds Habitat to the active shell
-profile and tells the user to open a new terminal (or prints the one command that works now).
-
-The installer resolves the latest version from Habitat's public download endpoint. To pin a
-specific published version instead, place `HT_VERSION` on the shell side of the pipeline:
+Search or inspect captured sessions entirely on your machine:
 
 ```sh
-curl -fsSL https://app.use-habitat.com/install.sh | HT_VERSION=v0.4.0 sh
-```
-
-If another program already owns the `ht` command, the installer names it and prints the
-full path to Habitat's launcher. Put `~/.ht/bin` first in `PATH`, or run
-`~/.ht/bin/ht setup` directly.
-
-`ht setup` is the normal entry point. It:
-
-1. logs in to a Habitat workspace;
-2. scans local Codex and Claude history, then fuzzy-searches saved project folders
-   with a historical session count beside each one; zero-history folders remain
-   selectable after confirming that setup should watch for future sessions;
-3. lets the user choose a 30-day, 90-day, or all-time backfill;
-4. watches each selected folder for both Codex and Claude sessions, including
-   sessions started in subdirectories;
-5. installs both provider hooks and schedules the selected history for background
-   scanning and upload;
-6. exits without launching Codex or Claude, printing the manual Codex hook trust
-   and verification instructions in the final summary.
-
-Setup is idempotent. It is safe to run again after an interruption.
-Its durable output is one user-facing configuration file at
-`~/.config/ht/ht.config.json` (or `HT_CONFIG`). The background daemon reads that
-file on startup and reconciles changes whenever it is rewritten. Credentials
-and ingestion checkpoints remain in Keychain/`~/.ht` as secret runtime state.
-
-```sh
-ht setup
-ht configure
-ht logout
-ht update
+ht sessions search "migration"
+ht sessions show SESSION_ID
 ht status
-ht uninstall
 ```
 
-`ht configure` changes project routing for an existing workspace. Running `ht setup`
-again can add another workspace. One project routes to one workspace, while delivery and
-retry state remain isolated per workspace. A selected Git project automatically includes
-all of its active worktrees, including worktrees created after configuration.
+The installer is a convenience wrapper around public GitHub release assets. It
+verifies the selected binary against the release's `SHA256SUMS` before
+activation. You can review [`install.sh`](install.sh) first or download an asset
+directly from [GitHub Releases](https://github.com/use-habitat/ht/releases).
 
-`ht logout` removes the active workspace's local credential, configuration, and project
-routes. Use `ht logout --workspace ID` for another saved workspace or `ht logout --all`
-to remove every saved workspace login.
+## Connect Habitat Cloud
 
-`ht update` checks Habitat's release endpoint, verifies the platform binary against the
-published checksum, replaces the managed binary, and restarts the background service when
-it is active. It preserves configuration, credentials, hooks, and local session data:
+Run the guided setup when you want to share selected project sessions with a
+Habitat workspace:
 
 ```sh
-ht update
-ht update --to v0.4.0
-ht update --force
+ht setup
 ```
 
-## Automation and assistant-driven setup
+Setup logs in, lets you choose projects and a 30-day, 90-day, or all-time
+backfill, installs provider hooks, and schedules background capture. It never
+launches Codex or Claude Code and explains the Codex hook trust step rather than
+bypassing it.
 
-Claude Cowork, Codex, an IT installer, or another permissioned harness can use the same
-flow without terminal prompts:
+One project routes to one workspace; delivery, retry state, and credentials stay
+isolated per workspace. Setup is idempotent and safe to rerun after an
+interruption.
+
+For a self-hosted Habitat-compatible endpoint:
+
+```sh
+ht setup \
+  --api-url http://127.0.0.1:4319 \
+  --app-url http://localhost:3000
+```
+
+## How it works
+
+```mermaid
+flowchart LR
+  A["Codex and Claude Code logs"] -->|"read only"| B["HT normalizer + redaction"]
+  B --> C["Local SQLite ledger"]
+  C --> D["Local list, show, search"]
+  C -->|"optional versioned batches"| E["Habitat-compatible API"]
+  E --> F["Habitat Cloud team experience"]
+```
+
+A provider stop hook durably records the exact transcript path before waking the
+daemon. The first delivery is a baseline; later deliveries contain only ordered
+events after the acknowledged byte cursor. Immutable batch IDs make retries
+idempotent, while quarantine state prevents a malformed payload from blocking
+later work.
+
+The public wire format, JSON Schema, compatibility policy, and synthetic fixtures
+live in [`protocol`](protocol/README.md).
+
+## Public project boundary
+
+| Open-source HT | Habitat Cloud |
+| --- | --- |
+| CLI commands and JSON automation | Workspace authentication and authorization |
+| Codex and Claude Code adapters | Hosted ingestion and PostgreSQL operations |
+| Normalization and redaction | Web application and team collaboration |
+| Local SQLite storage and search | Hosted summaries and search infrastructure |
+| Hooks, daemon, diagnostics, recovery | Billing, deployment, and production operations |
+| Installer, updater, and ingestion contract | Managed service support |
+
+HT's local workflow does not depend on the private cloud codebase. Read the
+[boundary document](docs/open-source-boundary.md) for contribution guidance.
+
+## Supported platforms
+
+| Platform | Architecture | Release binary | CI |
+| --- | --- | --- | --- |
+| macOS | Apple silicon | `ht-darwin-arm64` | Yes |
+| macOS | Intel | `ht-darwin-x64` | Yes |
+| Linux | Arm64 | `ht-linux-arm64` | Yes |
+| Linux | x64 | `ht-linux-x64` | Yes |
+
+Windows is not currently supported. See [ROADMAP.md](ROADMAP.md) for how platform
+support is prioritized.
+
+## Common commands
+
+```sh
+ht preflight                # read-only environment inspection
+ht install                  # install hooks and local background service
+ht setup                    # configure local capture plus Habitat Cloud
+ht configure                # change project and workspace routing
+ht sync                     # explicitly reconcile provider history
+ht backfill                 # inspect or schedule historical capture
+ht sessions list            # list local sessions
+ht sessions show ID         # inspect one local session
+ht sessions search QUERY    # search local content
+ht status                   # concise capture and delivery health
+ht doctor                   # detailed diagnostics and repair guidance
+ht update                   # checksum-verified upgrade
+ht logout                   # remove a workspace login
+ht uninstall                # remove hooks, launcher, and service
+```
+
+Uninstall preserves local SQLite data and credentials so an interrupted or
+accidental uninstall is recoverable. Paths and environment overrides are shown
+with `ht help` and in the [privacy model](docs/privacy.md).
+
+## Automation
+
+Permissioned tools and managed installers can use the same flow without terminal
+prompts:
 
 ```sh
 printf '%s' "$HABITAT_API_KEY" | ht setup \
@@ -89,105 +155,41 @@ printf '%s' "$HABITAT_API_KEY" | ht setup \
   --json
 ```
 
-An assistant should ask before changing provider hooks, installing a background service,
-opening browser login, or uploading session content. `ht preflight --json` is a read-only
-way to inspect the machine first.
-
-JSON reports `ready: false` plus an `actionsRequired` entry until HT observes a
-real Codex hook. The assistant should leave the trust decision to the user; it
-must not bypass or answer it. Setup installs the hook but never launches Codex or
-Claude. The final summary tells the user to review the installed hook with
-`/hooks`, trust it, and complete one turn.
-
-Self-hosted and local Habitat deployments can set the endpoints explicitly:
-
-```sh
-ht setup \
-  --api-url http://127.0.0.1:4319 \
-  --app-url http://localhost:3000
-```
-
-## Ingestion model
-
-Provider transcripts are read-only. Canonical local session data and the durable ingestion
-ledger live in `~/.ht/sessions.sqlite`.
-
-- A stop hook writes the exact provider and transcript path to SQLite before it wakes the
-  daemon. If the daemon is unavailable, the request remains queued.
-- The daemon processes that transcript only. It does not re-scan every session and has no
-  periodic source scan.
-- The daemon watches the unified `ht.config.json`; changing project routes,
-  workspaces, backfill settings, or upload filters triggers reconciliation.
-- The first upload for a logical source is a baseline. Later uploads contain only new
-  events and an ordered byte cursor.
-- A transcript moved to the Codex archive retains its logical source identity. Its final
-  state is captured once and later archive scans skip it.
-- Immutable batches have stable IDs. Per-workspace delivery rows record acknowledgement,
-  bounded exponential backoff, and quarantine state.
-- Upload retries may run on a timer, but retry work never triggers a provider-wide source
-  scan.
-
-Manual reconciliation remains available:
-
-```sh
-ht sync
-ht backfill
-```
-
-`ht sync` explicitly scans provider histories. Normal live ingestion is hook-targeted.
-Setup schedules one full reconciliation in the daemon and returns immediately;
-historical uploads continue in the background.
-
-## Inspect and recover
-
-```sh
-ht status
-ht doctor
-ht backfill --retry-quarantined
-```
-
-`ht status` is a concise human-readable health view. It reports each selected harness's
-hook state, daemon reachability, the last cycle, selected projects, local sessions, queue
-health, and per-workspace delivery.
-Use `ht status --verbose` for local paths, destination IDs, and recent delivery errors, or
-`ht status --json` for automation. `ht doctor` remains the full diagnostic report.
-
-Background upload failures and quarantined payloads are reported by `ht status`
-and `ht doctor`.
-
-Uninstall removes Habitat's provider hooks, background service, launcher, and installed
-binary. Local SQLite data and credentials are preserved so reinstalling is recoverable:
-
-```sh
-ht uninstall
-```
+An assistant should ask before changing hooks, installing a service, opening a
+browser, or uploading content. `ht preflight --json` is the read-only starting
+point. A real Codex hook must still be reviewed and trusted by the user.
 
 ## Build from source
 
-HT requires Bun 1.3 or newer.
+Prerequisite: [Bun 1.3+](https://bun.sh/). A separate Node.js installation is
+not required.
 
 ```sh
 git clone https://github.com/use-habitat/ht.git
 cd ht
-bun install
+bun install --frozen-lockfile
 bun run check
 bun run build
 ./dist/ht --help
 ```
 
-The release workflow builds standalone macOS and Linux binaries for Arm and x64. The install
-script verifies each binary against the published `SHA256SUMS` file before activation.
+The release workflow builds standalone Arm and x64 binaries on native macOS and
+Linux runners, produces checksums and an SBOM, and publishes GitHub build
+provenance attestations.
 
-## Provider locations
+## Community and security
 
-- Codex: `CODEX_HOME`, then `~/.codex`
-- Claude Code: `CLAUDE_CONFIG_DIR`, then `~/.claude`
+- Start with [CONTRIBUTING.md](CONTRIBUTING.md).
+- Use the [issue chooser](https://github.com/use-habitat/ht/issues/new/choose)
+  for bugs, provider changes, and feature proposals.
+- Follow [SECURITY.md](SECURITY.md) for private vulnerability reporting.
+- Read [SUPPORT.md](SUPPORT.md), [GOVERNANCE.md](GOVERNANCE.md), and
+  [ROADMAP.md](ROADMAP.md) for project expectations.
+- Review [CHANGELOG.md](CHANGELOG.md) before upgrading across minor releases.
+- Maintainers should complete the [launch checklist](docs/maintainer-launch-checklist.md)
+  before an announcement or release.
 
-Overrides:
+## License
 
-- `HT_HOME`: Habitat state directory (default `~/.ht`)
-- `HT_CODEX_HOME`: Codex data directory
-- `HT_CLAUDE_HOME`: Claude Code data directory
-- `HABITAT_API_URL`: Habitat API
-- `HABITAT_APP_URL`: Habitat web app
-- `HABITAT_API_KEY`: non-interactive workspace credential
+MIT. See [LICENSE](LICENSE). “Habitat”, “HT”, and associated logos are subject
+to the [trademark policy](TRADEMARKS.md).
