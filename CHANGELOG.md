@@ -6,6 +6,8 @@ changes to ship in minor releases with migration guidance.
 
 ## [Unreleased]
 
+## [0.4.8] - 2026-09-19
+
 ### Added
 
 - Public ingestion-v2 JSON Schema and canonical compatibility fixtures.
@@ -21,5 +23,6 @@ changes to ship in minor releases with migration guidance.
 - Local Codex and Claude Code capture, inspection, search, and optional Habitat
   Cloud synchronization.
 
-[Unreleased]: https://github.com/use-habitat/ht/compare/v0.4.7...HEAD
+[Unreleased]: https://github.com/use-habitat/ht/compare/v0.4.8...HEAD
+[0.4.8]: https://github.com/use-habitat/ht/compare/v0.4.7...v0.4.8
 [0.4.7]: https://github.com/use-habitat/ht/releases/tag/v0.4.7

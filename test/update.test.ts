@@ -157,7 +157,7 @@ describe("ht update", () => {
           received = options
           return {
             updated: true,
-            currentVersion: "v0.4.7",
+            currentVersion: "v0.4.8",
             version: "v9.8.7",
             binary: "/tmp/ht",
             checksumVerified: true,
@@ -167,7 +167,7 @@ describe("ht update", () => {
       }
     )).toBe(0)
     expect(received).toMatchObject({
-      currentVersion: "0.4.7",
+      currentVersion: "0.4.8",
       requestedVersion: "v9.8.7",
       force: true
     })
